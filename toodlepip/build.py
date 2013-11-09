@@ -57,6 +57,7 @@ class Builder(object):
         
         _pip_upgrade("pip")
         _pip_upgrade("setuptools")
+        _pip_upgrade("virtualenv")
         
     def _python_binary(self, python_version):
         if python_version == "pypy":
