@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import toodlepip
+import sys
+
+toodlepip.run(sys.argv)

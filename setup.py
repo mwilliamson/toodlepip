@@ -15,5 +15,10 @@ setup(
     author_email='mike@zwobble.org',
     url='https://github.com/mwilliamson/toodlepip',
     packages=['toodlepip'],
+    scripts=['scripts/toodlepip'],
+    install_requires=[
+        "spur.local>=0.3.7,<0.4",
+        "PyYAML>=3.10,<4.0",
+    ],
     keywords="build test continuous integration travis",
 )
