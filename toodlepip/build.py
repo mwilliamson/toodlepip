@@ -48,7 +48,8 @@ class Builder(object):
         return self._shell.run(*args, stdout=self._stdout, **kwargs)
             
     def _create_virtualenv(self, path, python_version):
-        self._shell.run(["virtualenv", path, "--python=python{0}".format(python_version)])
+        python_binary = self._python_binary(python_version)
+        self._shell.run(["virtualenv", path, "--python={0}".format(python_binary)])
         
         def _pip_upgrade(package_name):
             pip = os.path.join(path, "bin", "pip")
@@ -56,4 +57,10 @@ class Builder(object):
         
         _pip_upgrade("pip")
         _pip_upgrade("setuptools")
+        
+    def _python_binary(self, python_version):
+        if python_version == "pypy":
+            return "pypy"
+        else:
+            return "python{0}".format(python_version)
         

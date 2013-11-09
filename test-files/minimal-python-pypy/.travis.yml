@@ -1,0 +1,6 @@
+language: python
+python:
+  - "pypy"
+install:
+  - "pip install . --use-mirrors"
+script: greet
