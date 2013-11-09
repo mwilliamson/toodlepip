@@ -5,10 +5,10 @@ import yaml
 
 def read(path):
     with open(os.path.join(path, ".travis.yml")) as yml_file:
-        return _read_travis_yml(yml_file)
+        return read_travis_yml(yml_file)
 
 
-def _read_travis_yml(yml_file):
+def read_travis_yml(yml_file):
     config = yaml.load(yml_file)
     return TravisConfig(config)
 
