@@ -1,5 +1,6 @@
 import argparse
 import sys
+import os
 
 import spur
 
@@ -35,5 +36,6 @@ class BuildCommand(object):
         subparser.add_argument("path")
     
     def execute(self, args):
-        builder = Builder(spur.LocalShell(), sys.stdout)
-        builder.build(args.path)
+        with os.fdopen(sys.stdout.fileno(), "wb") as binary_stdout:
+            builder = Builder(spur.LocalShell(), binary_stdout)
+            builder.build(args.path)

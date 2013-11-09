@@ -17,6 +17,7 @@ setup(
     packages=['toodlepip'],
     scripts=['scripts/toodlepip'],
     install_requires=[
+        "argparse==1.2.1",
         "spur.local>=0.3.7,<0.4",
         "PyYAML>=3.10,<4.0",
     ],
