@@ -13,6 +13,10 @@ class Builder(object):
     def build(self, path):
         project_config = config.read(path)
         
+        for python_version in project_config.python:
+            self._build_python(path, project_config, python_version)
+            
+    def _build_python(self, path, project_config, python_version):
         working_dir = tempfile.mkdtemp()
         try:
             project_dir = os.path.join(working_dir, "project")
@@ -22,7 +26,7 @@ class Builder(object):
                 path,
                 project_dir,
             ])
-            self._create_virtualenv(virtualenv_dir)
+            self._create_virtualenv(virtualenv_dir, python_version)
             virtualenv_activate = os.path.join(virtualenv_dir, "bin/activate")
             
             def _virtual_env_run(command):
@@ -43,8 +47,8 @@ class Builder(object):
     def _run(self, *args, **kwargs):
         return self._shell.run(*args, stdout=self._stdout, **kwargs)
             
-    def _create_virtualenv(self, path):
-        self._shell.run(["virtualenv", path])
+    def _create_virtualenv(self, path, python_version):
+        self._shell.run(["virtualenv", path, "--python=python{0}".format(python_version)])
         
         def _pip_upgrade(package_name):
             pip = os.path.join(path, "bin", "pip")

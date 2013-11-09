@@ -24,3 +24,7 @@ class TravisConfig(object):
     @property
     def install(self):
         return self._yaml["install"]
+        
+    @property
+    def python(self):
+        return self._yaml.get("python", ["2.7"])
