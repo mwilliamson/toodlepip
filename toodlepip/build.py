@@ -5,18 +5,12 @@ import os
 from . import config
 
 
-class Builder(object):
+class PythonBuilder(object):
     def __init__(self, shell, stdout):
         self._shell = shell
         self._stdout = stdout
-    
-    def build(self, path):
-        project_config = config.read(path)
-        
-        for python_version in project_config.python:
-            self._build_python(path, project_config, python_version)
-            
-    def _build_python(self, path, project_config, python_version):
+
+    def build(self, path, project_config, python_version):
         working_dir = tempfile.mkdtemp()
         try:
             project_dir = os.path.join(working_dir, "project")
@@ -64,4 +58,27 @@ class Builder(object):
             return "pypy"
         else:
             return "python{0}".format(python_version)
+
+
+class Builder(object):
+    _builders = {
+        "python": PythonBuilder
+    }
+    _default_versions = {
+        "python": ["2.7"]
+    }
+        
+    def __init__(self, shell, stdout):
+        self._shell = shell
+        self._stdout = stdout
+    
+    def build(self, path):
+        project_config = config.read(path)
+        
+        language = project_config.language
+        language_builder = self._builders[project_config.language](self._shell, self._stdout)
+        default_versions = self._default_versions[language]
+        
+        for version in project_config.get_list(language, default_versions):
+            language_builder.build(path, project_config, version)
         

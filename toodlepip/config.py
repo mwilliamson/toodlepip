@@ -1,4 +1,5 @@
 import os
+import sys
 
 import yaml
 
@@ -18,6 +19,10 @@ class TravisConfig(object):
         self._yaml = yaml
         
     @property
+    def language(self):
+        return self._yaml["language"]
+        
+    @property
     def script(self):
         return self._yaml["script"]
 
@@ -25,6 +30,18 @@ class TravisConfig(object):
     def install(self):
         return self._yaml["install"]
         
-    @property
-    def python(self):
-        return self._yaml.get("python", ["2.7"])
+    def get_list(self, name, default=None):
+        value = self._yaml.get(name, default)
+        if _is_string(value):
+            return [value]
+        else:
+            return value
+
+
+def _is_string(value):
+    if sys.version_info[0] <= 2:
+        string_cls = basestring
+    else:
+        string_cls = str
+        
+    return isinstance(value, string_cls)
