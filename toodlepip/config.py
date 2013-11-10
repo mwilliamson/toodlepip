@@ -24,11 +24,11 @@ class TravisConfig(object):
         
     @property
     def script(self):
-        return self._yaml["script"]
+        return self.get_list("script")
 
     @property
     def install(self):
-        return self._yaml["install"]
+        return self.get_list("install")
         
     def get_list(self, name, default=None):
         value = self._yaml.get(name, default)

@@ -9,7 +9,7 @@ from . import testing
 @istest
 def config_read_from_travis_yml_for_project_if_present():
     project_config = config.read(testing.path("minimal-python"))
-    assert_equal("greet", project_config.script)
+    assert_equal("python", project_config.language)
 
 
 @istest
@@ -23,7 +23,7 @@ def language_is_read_from_travis_yml():
 def script_command_is_read_from_travis_yml():
     yaml_file = io.BytesIO(b"script: greet")
     project_config = config.read_travis_yml(yaml_file)
-    assert_equal("greet", project_config.script)
+    assert_equal(["greet"], project_config.script)
 
 
 @istest

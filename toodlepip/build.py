@@ -34,7 +34,8 @@ class PythonBuilder(object):
             
             for command in project_config.install:
                 _virtual_env_run(command)
-            _virtual_env_run(project_config.script)
+            for command in project_config.script:
+                _virtual_env_run(command)
         finally:
             shutil.rmtree(working_dir)
     
