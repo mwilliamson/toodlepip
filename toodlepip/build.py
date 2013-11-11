@@ -6,9 +6,8 @@ from . import config
 
 
 class PythonBuilder(object):
-    def __init__(self, shell, stdout):
-        self._shell = shell
-        self._stdout = stdout
+    def __init__(self, console):
+        self._console = console
 
     def matrix(self, project_config):
         return project_config.get_list("python", ["2.7"])
@@ -18,44 +17,53 @@ class PythonBuilder(object):
         try:
             project_dir = os.path.join(working_dir, "project")
             virtualenv_dir = os.path.join(working_dir, "virtualenv")
-            self._shell.run([
-                "cp", "-r",
-                path,
-                project_dir,
-            ])
+            self._console.run(
+                "Copying project",
+                ["cp", "-r", path, project_dir,],
+                quiet=True,
+            )
             self._create_virtualenv(virtualenv_dir, python_version)
             virtualenv_activate = os.path.join(virtualenv_dir, "bin/activate")
             
-            def _virtual_env_run(command):
-                self._run([
-                    "sh", "-c",
-                    _virtualenv_command(command)
-                ], cwd=project_dir)
+            def _virtualenv_run_all(description, commands):
+                commands = map(_virtualenv_command, commands)
+                self._console.run_all(
+                    description,
+                    commands,
+                    cwd=project_dir
+                )
             
             def _virtualenv_command(command):
-                return ". {0}; {1}".format(virtualenv_activate, command)
+                return [
+                    "sh", "-c",
+                    ". {0}; {1}".format(virtualenv_activate, command)
+                ]
             
-            for command in project_config.install:
-                _virtual_env_run(command)
-            for command in project_config.script:
-                _virtual_env_run(command)
+            _virtualenv_run_all("Running install commands", project_config.install)
+            _virtualenv_run_all("Running script commands", project_config.script)
         finally:
             shutil.rmtree(working_dir)
     
-    def _run(self, *args, **kwargs):
-        return self._shell.run(*args, stdout=self._stdout, **kwargs)
-            
     def _create_virtualenv(self, path, python_version):
         python_binary = self._python_binary(python_version)
-        self._shell.run(["virtualenv", path, "--python={0}".format(python_binary)])
         
         def _pip_upgrade(package_name):
             pip = os.path.join(path, "bin", "pip")
-            self._shell.run([pip, "install", "--upgrade", package_name])
+            return [pip, "install", "--upgrade", package_name]
         
-        _pip_upgrade("pip")
-        _pip_upgrade("setuptools")
-        _pip_upgrade("virtualenv")
+        commands = [
+            ["virtualenv", path, "--python={0}".format(python_binary)],
+            _pip_upgrade("pip"),
+            _pip_upgrade("setuptools"),
+            _pip_upgrade("virtualenv"),
+        ]
+        
+        self._console.run_all(
+            "Creating virtualenv",
+            commands,
+            quiet=True,
+        )
+        
         
     def _python_binary(self, python_version):
         if python_version == "pypy":
@@ -77,8 +85,31 @@ class Builder(object):
         project_config = config.read(path)
         
         language = project_config.language
-        language_builder = self._builders[project_config.language](self._shell, self._stdout)
+        console = Console(self._shell, self._stdout)
+        language_builder = self._builders[project_config.language](console)
         
         for entry in language_builder.matrix(project_config):
             language_builder.build(path, project_config, entry)
         
+
+class Console(object):
+    def __init__(self, shell, stdout):
+        self._shell = shell
+        self._stdout = stdout
+        
+    def run(self, description, command, **kwargs):
+        return self.run_all(description, [command], **kwargs)
+        
+    def run_all(self, description, commands, quiet=False, cwd=None):
+        stdout = None if quiet else self._stdout
+        # TODO: Test printing description
+        # TODO: detect terminal
+        # TODO: stderr
+        self._stdout.write('\033[1m')
+        self._stdout.write(description)
+        self._stdout.write("\n")
+        self._stdout.write('\033[0m')
+        self._stdout.flush()
+        for command in commands:
+            # TODO: print command
+            self._shell.run(command, stdout=stdout, cwd=cwd)
