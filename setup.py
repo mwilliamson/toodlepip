@@ -20,6 +20,7 @@ setup(
         "argparse==1.2.1",
         "spur.local>=0.3.7,<0.4",
         "PyYAML>=3.10,<4.0",
+        "mayo>=0.2.3,<0.3",
     ],
     keywords="build test continuous integration travis",
 )

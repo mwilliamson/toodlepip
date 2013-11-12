@@ -2,7 +2,7 @@ import tempfile
 import shutil
 import os
 
-from . import config
+from . import config, files
 
 
 class PythonBuilder(object):
@@ -17,11 +17,12 @@ class PythonBuilder(object):
         try:
             project_dir = os.path.join(working_dir, "project")
             virtualenv_dir = os.path.join(working_dir, "virtualenv")
-            self._console.run(
+            self._console.run_all(
                 "Copying project",
-                ["cp", "-r", path, project_dir,],
+                [],
                 quiet=True,
             )
+            files.copy(path, project_dir)
             self._create_virtualenv(virtualenv_dir, python_version)
             virtualenv_activate = os.path.join(virtualenv_dir, "bin/activate")
             
