@@ -105,7 +105,6 @@ class Console(object):
         stdout = None if quiet else self._stdout
         # TODO: Test printing description
         # TODO: detect terminal
-        # TODO: stderr
         self._stdout.write('\033[1m')
         self._stdout.write(description)
         self._stdout.write("\n")
@@ -113,4 +112,4 @@ class Console(object):
         self._stdout.flush()
         for command in commands:
             # TODO: print command
-            self._shell.run(command, stdout=stdout, cwd=cwd)
+            self._shell.run(command, stdout=stdout, stderr=stdout, cwd=cwd)

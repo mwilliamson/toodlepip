@@ -21,6 +21,12 @@ class PythonBuilderTests(object):
 
 
     @istest
+    def stderr_output_is_captured(self):
+        self._builder.build(testing.path("minimal-python-stderr"))
+        self._assert_stdout_contains(b"This is CPython 2.7 calling")
+
+
+    @istest
     def python_version_can_be_selected(self):
         self._builder.build(testing.path("minimal-python-2.6"))
         self._assert_stdout_contains(b"This is CPython 2.6 calling")
