@@ -1,5 +1,8 @@
 import os
+from datetime import timedelta
+
 import tempman
+import xdg.BaseDirectory
 
 from . import config, files
 
@@ -12,7 +15,7 @@ class PythonBuilder(object):
         return project_config.get_list("python", ["2.7"])
 
     def build(self, path, project_config, python_version):
-        with tempman.create_temp_dir() as temp_dir:
+        with self._create_temp_dir() as temp_dir:
             working_dir = temp_dir.path
             
             project_dir = os.path.join(working_dir, "project")
@@ -42,6 +45,13 @@ class PythonBuilder(object):
             
             _virtualenv_run_all("Running install commands", project_config.install)
             _virtualenv_run_all("Running script commands", project_config.script)
+    
+    def _create_temp_dir(self):
+        temp_root = tempman.root(
+            xdg.BaseDirectory.save_data_path("toodlepip/tmp"),
+            timeout=timedelta(days=1)
+        )
+        return temp_root.create_temp_dir()
     
     def _create_virtualenv(self, path, python_version):
         python_binary = self._python_binary(python_version)

@@ -22,6 +22,7 @@ setup(
         "PyYAML>=3.10,<4.0",
         "mayo>=0.2.3,<0.3",
         "tempman>=0.1.2,<0.2",
+        "pyxdg>=0.25,<1.0",
     ],
     keywords="build test continuous integration travis",
 )
