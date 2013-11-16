@@ -1,6 +1,5 @@
-import tempfile
-import shutil
 import os
+import tempman
 
 from . import config, files
 
@@ -13,8 +12,9 @@ class PythonBuilder(object):
         return project_config.get_list("python", ["2.7"])
 
     def build(self, path, project_config, python_version):
-        working_dir = tempfile.mkdtemp()
-        try:
+        with tempman.create_temp_dir() as temp_dir:
+            working_dir = temp_dir.path
+            
             project_dir = os.path.join(working_dir, "project")
             virtualenv_dir = os.path.join(working_dir, "virtualenv")
             self._console.run_all(
@@ -42,8 +42,6 @@ class PythonBuilder(object):
             
             _virtualenv_run_all("Running install commands", project_config.install)
             _virtualenv_run_all("Running script commands", project_config.script)
-        finally:
-            shutil.rmtree(working_dir)
     
     def _create_virtualenv(self, path, python_version):
         python_binary = self._python_binary(python_version)

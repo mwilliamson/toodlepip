@@ -21,6 +21,7 @@ setup(
         "spur.local>=0.3.7,<0.4",
         "PyYAML>=3.10,<4.0",
         "mayo>=0.2.3,<0.3",
+        "tempman>=0.1.2,<0.2",
     ],
     keywords="build test continuous integration travis",
 )
