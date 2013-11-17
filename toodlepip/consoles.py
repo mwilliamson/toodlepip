@@ -17,4 +17,19 @@ class Console(object):
         self._stdout.flush()
         for command in commands:
             # TODO: print command
-            self._shell.run(command, stdout=stdout, stderr=stdout, cwd=cwd)
+            result = self._shell.run(
+                command,
+                stdout=stdout,
+                stderr=stdout,
+                cwd=cwd,
+                allow_error=True
+            )
+            if result.return_code != 0:
+                return Result(result.return_code)
+            
+            
+        return Result(0)
+        
+class Result(object):
+    def __init__(self, return_code):
+        self.return_code = return_code

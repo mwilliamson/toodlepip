@@ -20,6 +20,20 @@ def console_writes_stderr_output_to_console():
     assert b"Go go go!" in output.getvalue()
 
 
+@istest
+def return_code_is_zero_if_all_commands_are_successful():
+    console, output = _create_local_console()
+    result = console.run_all("Action", [["true"]])
+    assert_equal(0, result.return_code)
+
+
+@istest
+def return_code_is_first_non_zero_return_code_of_commands():
+    console, output = _create_local_console()
+    result = console.run_all("Action", [["true"], ["sh", "-c", "exit 2"], ["true"], ["sh", "-c", "exit 1"]])
+    assert_equal(2, result.return_code)
+
+
 def _create_local_console():
     output = io.BytesIO()
     shell = spur.LocalShell()
