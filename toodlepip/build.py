@@ -5,7 +5,7 @@ import tempman
 import xdg.BaseDirectory
 
 from . import config, files
-from .consoles import Console
+from .consoles import Console, Result
 
 
 class PythonBuilder(object):
@@ -133,9 +133,25 @@ class Builder(object):
             
 class StepRunner(object):
     def run_steps(self, runtime, project_config):
-        for step_name in ["before_install", "install", "before_script", "script"]:
-            step = self._step(project_config, step_name)
-            runtime.run_step(step)
+        for step_name in ["before_install", "install", "before_script"]:
+            result = self._run_step(runtime, project_config, step_name)
+            if result.return_code != 0:
+                return result
+                
+        result = self._run_step(runtime, project_config, "script")
+        if result.return_code == 0:
+            after_step = "after_success"
+        else:
+            after_step = "after_failure"
+            
+        self._run_step(runtime, project_config, after_step)
+        self._run_step(runtime, project_config, "after_script")
+        
+        return result
+        
+    def _run_step(self, runtime, project_config, step_name):
+        step = self._step(project_config, step_name)
+        return runtime.run_step(step)
         
     def _step(self, project_config, name):
         commands = project_config.get_list(name, [])

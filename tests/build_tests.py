@@ -1,9 +1,11 @@
 import io
 
 import spur
-from nose.tools import istest
+from nose.tools import istest, assert_equal
 
-from toodlepip.build import create_builder
+from toodlepip.build import create_builder, StepRunner
+from toodlepip.config import TravisConfig
+from toodlepip import consoles
 from . import testing
 
 
@@ -42,3 +44,64 @@ class PythonBuilderTests(object):
         output = self._stdout.getvalue()
         assert expected in output, "Output was: {0}".format(output)
 
+
+@istest
+class StepRunnerTests(object):
+    @istest
+    def all_steps_except_failure_are_executed_if_all_steps_are_successful(self):
+        project_config = TravisConfig({})
+        result = self._run_steps(project_config)
+        
+        assert_equal(0, result.return_code)
+        
+        success_steps = ["before_install", "install", "before_script", "script", "after_success", "after_script"]
+        assert_equal(success_steps, self._executed_steps())
+
+    @istest
+    def if_script_command_has_non_zero_return_code_then_after_failure_is_run(self):
+        project_config = TravisConfig({"script": ["exit 5"]})
+        result = self._run_steps(project_config)
+        
+        assert_equal(5, result.return_code)
+        
+        assert_equal(
+            ["before_install", "install", "before_script", "script", "after_failure", "after_script"],
+            self._executed_steps()
+        )
+
+    @istest
+    def execution_stops_if_step_before_script_command_has_non_zero_return_code(self):
+        project_config = TravisConfig({"install": ["exit 5"]})
+        result = self._run_steps(project_config)
+        
+        assert_equal(5, result.return_code)
+        
+        assert_equal(["before_install", "install"], self._executed_steps())
+
+    @istest
+    def return_code_is_zero_even_if_after_success_fails(self):
+        project_config = TravisConfig({"after_success": ["exit 5"]})
+        result = self._run_steps(project_config)
+        
+        assert_equal(0, result.return_code)
+        
+    def _run_steps(self, project_config):
+        runner = StepRunner()
+        self._runtime = FakeRuntime()
+        return runner.run_steps(self._runtime, project_config)
+        
+    def _executed_steps(self):
+        return [step.name for step in self._runtime.steps]
+
+
+class FakeRuntime(object):
+    def __init__(self):
+        self.steps = []
+    
+    def run_step(self, step):
+        self.steps.append(step)
+        if len(step.commands) > 0:
+            return_code = step.commands[0].split(" ")[1]
+            return consoles.Result(int(return_code))
+        else:
+            return consoles.Result(0)
