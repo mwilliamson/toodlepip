@@ -103,21 +103,24 @@ class PythonRuntime(object):
         _virtualenv_run_all("Running {0} commands".format(step.name), step.commands)
 
 
+_default_builders = {
+    "python": PythonBuilder
+}
+
+def create_builder(shell, stdout):
+    return Builder(_default_builders, Console(shell, stdout))
+
+
 class Builder(object):
-    _builders = {
-        "python": PythonBuilder
-    }
-        
-    def __init__(self, shell, stdout):
-        self._shell = shell
-        self._stdout = stdout
+    def __init__(self, builders, console):
+        self._console = console
+        self._builders = builders
     
     def build(self, path):
         project_config = config.read(path)
         
         language = project_config.language
-        console = Console(self._shell, self._stdout)
-        language_builder = self._builders[project_config.language](console)
+        language_builder = self._builders[project_config.language](self._console)
         
         for entry in language_builder.matrix(project_config):
             self._build_entry(language_builder, path, project_config, entry)
@@ -126,7 +129,7 @@ class Builder(object):
         with language_builder.create_runtime(path, entry) as runtime:
             for step in self._steps(project_config):
                 runtime.run_step(step)
-                
+        
     def _steps(self, project_config):
         for name in ["before_install", "install", "before_script", "script"]:
             commands = project_config.get_list(name, [])

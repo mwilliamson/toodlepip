@@ -4,8 +4,7 @@ import os
 
 import spur
 
-from .build import Builder
-
+from .build import create_builder
 
 
 def run(argv):
@@ -37,5 +36,5 @@ class BuildCommand(object):
     
     def execute(self, args):
         with os.fdopen(sys.stdout.fileno(), "wb") as binary_stdout:
-            builder = Builder(spur.LocalShell(), binary_stdout)
+            builder = create_builder(spur.LocalShell(), binary_stdout)
             builder.build(args.path)

@@ -3,7 +3,7 @@ import io
 import spur
 from nose.tools import istest
 
-from toodlepip.build import Builder
+from toodlepip.build import create_builder
 from . import testing
 
 
@@ -12,7 +12,7 @@ class PythonBuilderTests(object):
     def __init__(self):
         self._stdout = io.BytesIO()
         shell = spur.LocalShell()
-        self._builder = Builder(shell, self._stdout)
+        self._builder = create_builder(shell, self._stdout)
     
     @istest
     def python_project_configured_with_travis_yml_can_be_built(self):
@@ -41,5 +41,4 @@ class PythonBuilderTests(object):
     def _assert_stdout_contains(self, expected):
         output = self._stdout.getvalue()
         assert expected in output, "Output was: {0}".format(output)
-        
 
