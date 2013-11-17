@@ -13,9 +13,11 @@ class PythonBuilder(object):
 
     def matrix(self, project_config):
         return project_config.get_list("python", ["2.7"])
-
-    def build(self, path, project_config, python_version):
-        with self._create_temp_dir() as temp_dir:
+    
+    def create_runtime(self, path, entry):
+        python_version = entry
+        temp_dir = self._create_temp_dir()
+        try:
             working_dir = temp_dir.path
             
             project_dir = os.path.join(working_dir, "project")
@@ -27,24 +29,10 @@ class PythonBuilder(object):
             )
             files.copy(path, project_dir)
             self._create_virtualenv(virtualenv_dir, python_version)
-            virtualenv_activate = os.path.join(virtualenv_dir, "bin/activate")
-            
-            def _virtualenv_run_all(description, commands):
-                commands = map(_virtualenv_command, commands)
-                self._console.run_all(
-                    description,
-                    commands,
-                    cwd=project_dir
-                )
-            
-            def _virtualenv_command(command):
-                return [
-                    "sh", "-c",
-                    ". {0}; {1}".format(virtualenv_activate, command)
-                ]
-            
-            _virtualenv_run_all("Running install commands", project_config.install)
-            _virtualenv_run_all("Running script commands", project_config.script)
+        except Exception:
+            temp_dir.close()
+            raise
+        return PythonRuntime(self._console, temp_dir, project_dir, virtualenv_dir)
     
     def _create_temp_dir(self):
         temp_root = tempman.root(
@@ -81,6 +69,39 @@ class PythonBuilder(object):
             return "python{0}".format(python_version)
 
 
+class PythonRuntime(object):
+    def __init__(self, console, temp_dir, project_dir, virtualenv_dir):
+        self._console = console
+        self._temp_dir = temp_dir
+        self._project_dir = project_dir
+        self._virtualenv_dir = virtualenv_dir
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self._temp_dir.close()
+
+    def run_step(self, step):
+        virtualenv_activate = os.path.join(self._virtualenv_dir, "bin/activate")
+        
+        def _virtualenv_run_all(description, commands):
+            commands = map(_virtualenv_command, commands)
+            self._console.run_all(
+                description,
+                commands,
+                cwd=self._project_dir
+            )
+        
+        def _virtualenv_command(command):
+            return [
+                "sh", "-c",
+                ". {0}; {1}".format(virtualenv_activate, command)
+            ]
+        
+        _virtualenv_run_all("Running {0} commands".format(step.name), step.commands)
+
+
 class Builder(object):
     _builders = {
         "python": PythonBuilder
@@ -98,7 +119,23 @@ class Builder(object):
         language_builder = self._builders[project_config.language](console)
         
         for entry in language_builder.matrix(project_config):
-            language_builder.build(path, project_config, entry)
+            self._build_entry(language_builder, path, project_config, entry)
+            
+    def _build_entry(self, language_builder, path, project_config, entry):
+        with language_builder.create_runtime(path, entry) as runtime:
+            for step in self._steps(project_config):
+                runtime.run_step(step)
+                
+    def _steps(self, project_config):
+        for name in ["before_install", "install", "before_script", "script"]:
+            commands = project_config.get_list(name, [])
+            yield Step(name, commands)
+            
+            
+class Step(object):
+    def __init__(self, name, commands):
+        self.name = name
+        self.commands = commands
         
 
 class Console(object):
