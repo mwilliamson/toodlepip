@@ -127,9 +127,15 @@ class Builder(object):
             
     def _build_entry(self, language_builder, path, project_config, entry):
         with language_builder.create_runtime(path, entry) as runtime:
-            for step_name in ["before_install", "install", "before_script", "script"]:
-                step = self._step(project_config, step_name)
-                runtime.run_step(step)
+            step_runner = StepRunner()
+            step_runner.run_steps(runtime, project_config)
+            
+            
+class StepRunner(object):
+    def run_steps(self, runtime, project_config):
+        for step_name in ["before_install", "install", "before_script", "script"]:
+            step = self._step(project_config, step_name)
+            runtime.run_step(step)
         
     def _step(self, project_config, name):
         commands = project_config.get_list(name, [])
