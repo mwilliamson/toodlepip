@@ -88,7 +88,7 @@ class PythonRuntime(object):
         
         def _virtualenv_run_all(description, commands):
             commands = map(_virtualenv_command, commands)
-            self._console.run_all(
+            return self._console.run_all(
                 description,
                 commands,
                 cwd=self._project_dir
@@ -100,7 +100,7 @@ class PythonRuntime(object):
                 ". {0}; {1}".format(virtualenv_activate, command)
             ]
         
-        _virtualenv_run_all("Running {0} commands".format(step.name), step.commands)
+        return _virtualenv_run_all("Running {0} commands".format(step.name), step.commands)
 
 
 _default_builders = {
