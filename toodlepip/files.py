@@ -26,7 +26,7 @@ def _find_ignored_files(path):
     lines = result.output.split(b"\0")
     ignore_prefix = b"!! "
     return [
-        line[len(ignore_prefix):]
+        line[len(ignore_prefix):].decode("utf8")
         for line in lines
         if line.startswith(ignore_prefix)
     ]
