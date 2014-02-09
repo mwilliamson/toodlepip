@@ -2,9 +2,23 @@
 
 import os
 from distutils.core import setup
+import sys
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
+_install_requires = [
+    "spur.local>=0.3.7,<0.4",
+    "PyYAML>=3.10,<4.0",
+    "mayo>=0.2.3,<0.3",
+    "tempman>=0.1.2,<0.2",
+    "pyxdg>=0.25,<1.0",
+]
+
+if sys.version_info[:2] < (2, 7):
+    _install_requires.append("argparse==1.2.1")
+
 
 setup(
     name='toodlepip',
@@ -16,13 +30,6 @@ setup(
     url='https://github.com/mwilliamson/toodlepip',
     packages=['toodlepip'],
     scripts=['scripts/toodlepip'],
-    install_requires=[
-        "argparse==1.2.1",
-        "spur.local>=0.3.7,<0.4",
-        "PyYAML>=3.10,<4.0",
-        "mayo>=0.2.3,<0.3",
-        "tempman>=0.1.2,<0.2",
-        "pyxdg>=0.25,<1.0",
-    ],
+    install_requires=_install_requires,
     keywords="build test continuous integration travis",
 )
