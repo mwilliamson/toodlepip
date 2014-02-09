@@ -15,32 +15,17 @@ class PythonBuilder(object):
     def matrix(self, project_config):
         return project_config.get_list("python", ["2.7"])
     
-    def create_runtime(self, path, entry):
+    def create_runtime(self, project_dir, entry):
         python_version = entry
-        temp_dir = self._create_temp_dir()
+        temp_dir = _create_temp_dir()
         try:
             working_dir = temp_dir.path
-            
-            project_dir = os.path.join(working_dir, "project")
             virtualenv_dir = os.path.join(working_dir, "virtualenv")
-            self._console.run_all(
-                "Copying project",
-                [],
-                quiet=True,
-            )
-            files.copy(path, project_dir)
             self._create_virtualenv(virtualenv_dir, python_version)
         except Exception:
             temp_dir.close()
             raise
         return PythonRuntime(self._console, temp_dir, project_dir, virtualenv_dir)
-    
-    def _create_temp_dir(self):
-        temp_root = tempman.root(
-            xdg.BaseDirectory.save_data_path("toodlepip/tmp"),
-            timeout=timedelta(days=1)
-        )
-        return temp_root.create_temp_dir()
     
     def _create_virtualenv(self, path, python_version):
         python_binary = self._python_binary(python_version)
@@ -57,7 +42,7 @@ class PythonBuilder(object):
         ]
         
         self._console.run_all(
-            "Creating virtualenv",
+            "Creating virtualenv for {0}".format(python_version),
             commands,
             quiet=True,
         )
@@ -117,16 +102,25 @@ class Builder(object):
         self._builders = builders
     
     def build(self, path):
-        project_config = config.read(path)
+        with _create_temp_dir() as temp_dir:
+            project_dir = temp_dir.path
+            self._console.run_all(
+                "Copying project",
+                [],
+                quiet=True,
+            )
+            files.copy(path, project_dir)
         
-        language = project_config.language
-        language_builder = self._builders[project_config.language](self._console)
-        
-        for entry in language_builder.matrix(project_config):
-            self._build_entry(language_builder, path, project_config, entry)
+            project_config = config.read(path)
             
-    def _build_entry(self, language_builder, path, project_config, entry):
-        with language_builder.create_runtime(path, entry) as runtime:
+            language = project_config.language
+            language_builder = self._builders[project_config.language](self._console)
+            
+            for entry in language_builder.matrix(project_config):
+                self._build_entry(language_builder, project_dir, project_config, entry)
+            
+    def _build_entry(self, language_builder, project_dir, project_config, entry):
+        with language_builder.create_runtime(project_dir, entry) as runtime:
             step_runner = StepRunner()
             step_runner.run_steps(runtime, project_config)
             
@@ -162,3 +156,11 @@ class Step(object):
     def __init__(self, name, commands):
         self.name = name
         self.commands = commands
+
+    
+def _create_temp_dir():
+    temp_root = tempman.root(
+        xdg.BaseDirectory.save_data_path("toodlepip/tmp"),
+        timeout=timedelta(days=1)
+    )
+    return temp_root.create_temp_dir()
