@@ -7,6 +7,6 @@ python:
   - "pypy"
 install:
   - "touch README"
-  - "pip install . --use-mirrors"
+  - "pip install . --use-mirrors --allow-external argparse"
   - "pip install -r test-requirements.txt --use-mirrors"
 script: nosetests tests
