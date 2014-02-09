@@ -20,7 +20,7 @@ class TravisConfig(object):
         
     @property
     def language(self):
-        return self._yaml["language"]
+        return self._yaml.get("language")
         
     @property
     def script(self):

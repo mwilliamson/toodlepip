@@ -8,6 +8,36 @@ from . import config, files
 from .consoles import Console, Result
 
 
+class DefaultBuilder(object):
+    def __init__(self, console):
+        self._console = console
+    
+    def matrix(self, project_config):
+        return [None]
+    
+    def create_runtime(self, project_dir, entry):
+        return DefaultRuntime(self._console, project_dir)
+
+
+class DefaultRuntime(object):
+    def __init__(self, console, project_dir):
+        self._console = console
+        self._project_dir = project_dir
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        return
+    
+    def run_step(self, step):
+        return self._console.run_all(
+            "Running {0} commands".format(step.name),
+            [["sh", "-c", command] for command in step.commands],
+            cwd=self._project_dir
+        )
+
+
 class PythonBuilder(object):
     def __init__(self, console):
         self._console = console
@@ -89,7 +119,8 @@ class PythonRuntime(object):
 
 
 _default_builders = {
-    "python": PythonBuilder
+    None: DefaultBuilder,
+    "python": PythonBuilder,
 }
 
 def create_builder(shell, stdout):

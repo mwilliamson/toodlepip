@@ -9,6 +9,6 @@ local = spur.LocalShell()
 
 @istest
 def build_command_builds_project_locally():
-    result = local.run(["toodlepip", "build", testing.path("minimal-python")])
-    assert b"This is CPython 2.7 calling" in result.output, "Output was: {0}".format(result.output)
+    result = local.run(["toodlepip", "build", testing.path("travis-minimal")])
+    assert b"Hello, world!" in result.output, "Output was: {0}".format(result.output)
     assert_equal(0, result.return_code)
