@@ -23,8 +23,8 @@ def copy(source, destination):
 
 def _find_ignored_files(path):
     result = _local.run(["git", "status", "-z", "--ignored"], cwd=path)
-    lines = result.output.split("\0")
-    ignore_prefix = "!! "
+    lines = result.output.split(b"\0")
+    ignore_prefix = b"!! "
     return [
         line[len(ignore_prefix):]
         for line in lines
