@@ -18,8 +18,14 @@ def build_command_builds_project_locally():
     assert_equal(0, result.return_code)
 
 
+@istest
+def return_code_is_same_as_return_code_of_failed_command():
+    result = _build_empty(travis_yml={"script": "exit 1"})
+    assert_equal(1, result.return_code)
+
+
 def _build_empty(travis_yml):
     with tempman.create_temp_dir() as temp_dir:
         with open(os.path.join(temp_dir.path, ".travis.yml"), "w") as travis_yml_file:
             yaml.dump(travis_yml, travis_yml_file)
-        return local.run(["toodlepip", "build", temp_dir.path])
+        return local.run(["toodlepip", "build", temp_dir.path], allow_error=True)

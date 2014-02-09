@@ -37,4 +37,4 @@ class BuildCommand(object):
     def execute(self, args):
         with os.fdopen(sys.stdout.fileno(), "wb") as binary_stdout:
             builder = create_builder(spur.LocalShell(), binary_stdout)
-            builder.build(args.path)
+            return builder.build(args.path)

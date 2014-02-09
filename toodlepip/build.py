@@ -148,12 +148,16 @@ class Builder(object):
             language_builder = self._builders[project_config.language](self._console)
             
             for entry in language_builder.matrix(project_config):
-                self._build_entry(language_builder, project_dir, project_config, entry)
+                result = self._build_entry(language_builder, project_dir, project_config, entry)
+                if result.return_code != 0:
+                    return result.return_code
+            
+            return 0
             
     def _build_entry(self, language_builder, project_dir, project_config, entry):
         with language_builder.create_runtime(project_dir, entry) as runtime:
             step_runner = StepRunner()
-            step_runner.run_steps(runtime, project_config)
+            return step_runner.run_steps(runtime, project_config)
             
             
 class StepRunner(object):
