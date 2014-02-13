@@ -16,9 +16,13 @@ class Console(object):
             self._stdout.write(b'\033[0m')
             self._stdout.flush()
         for command in commands:
+            if isinstance(command, list):
+                # TODO: escape command properly
+                command = ' '.join(command)
+            
             # TODO: print command
             result = self._shell.run(
-                command,
+                ["sh", "-c", command],
                 stdout=stdout,
                 stderr=stdout,
                 cwd=cwd,

@@ -87,10 +87,7 @@ class CommandsRunner(object):
         
         def _runtime_command(command):
             before_command = self._runtime.before_step(step) or "true"
-            return [
-                "sh", "-c",
-                "{0}; {1}".format(before_command, command)
-            ]
+            return "{0}; {1}".format(before_command, command)
         
         return _runtime_run_all("Running {0} commands".format(step.name), step.commands)
         

@@ -9,35 +9,35 @@ from toodlepip.consoles import Console
 @istest
 def console_writes_stdout_output_to_console():
     console, output = _create_local_console()
-    console.run(None, ["echo", "Go go go!"])
+    console.run(None, "echo Go go go!")
     assert_equal("Go go go!\n", output.getvalue())
 
 
 @istest
 def console_writes_stderr_output_to_console():
     console, output = _create_local_console()
-    console.run(None, ["sh", "-c", "echo 'Go go go!' 1>&2"])
+    console.run(None, "echo 'Go go go!' 1>&2")
     assert_equal("Go go go!\n", output.getvalue())
 
 
 @istest
 def console_writes_description_before_command_output():
     console, output = _create_local_console()
-    console.run("Action", ["echo", "Go go go!"])
+    console.run("Action", "echo Go go go!")
     assert_equal("\x1b[1mAction\n\x1b[0mGo go go!\n", output.getvalue())
 
 
 @istest
 def return_code_is_zero_if_all_commands_are_successful():
     console, output = _create_local_console()
-    result = console.run_all("Action", [["true"]])
+    result = console.run_all("Action", ["true"])
     assert_equal(0, result.return_code)
 
 
 @istest
 def return_code_is_first_non_zero_return_code_of_commands():
     console, output = _create_local_console()
-    result = console.run_all("Action", [["true"], ["sh", "-c", "exit 2"], ["true"], ["sh", "-c", "exit 1"]])
+    result = console.run_all("Action", ["true", "exit 2", "true", "exit 1"])
     assert_equal(2, result.return_code)
 
 
