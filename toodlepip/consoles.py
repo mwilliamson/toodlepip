@@ -8,7 +8,6 @@ class Console(object):
         
     def run_all(self, description, commands, quiet=False, cwd=None):
         stdout = None if quiet else self._stdout
-        # TODO: Test printing description
         # TODO: detect terminal
         if description:
             self._stdout.write(b'\033[1m')

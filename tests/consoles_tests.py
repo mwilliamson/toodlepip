@@ -21,6 +21,13 @@ def console_writes_stderr_output_to_console():
 
 
 @istest
+def console_writes_description_before_command_output():
+    console, output = _create_local_console()
+    console.run("Action", ["echo", "Go go go!"])
+    assert_equal("\x1b[1mAction\n\x1b[0mGo go go!\n", output.getvalue())
+
+
+@istest
 def return_code_is_zero_if_all_commands_are_successful():
     console, output = _create_local_console()
     result = console.run_all("Action", [["true"]])
