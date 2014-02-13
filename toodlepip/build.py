@@ -16,14 +16,10 @@ class DefaultBuilder(object):
         return [None]
     
     def create_runtime(self, project_dir, entry):
-        return DefaultRuntime(self._console, project_dir)
+        return DefaultRuntime()
 
 
 class DefaultRuntime(object):
-    def __init__(self, console, project_dir):
-        self._console = console
-        self._project_dir = project_dir
-    
     def __enter__(self):
         return self
     
@@ -51,7 +47,7 @@ class PythonBuilder(object):
         except Exception:
             temp_dir.close()
             raise
-        return PythonRuntime(self._console, temp_dir, project_dir, virtualenv_dir)
+        return PythonRuntime(temp_dir, virtualenv_dir)
     
     def _create_virtualenv(self, path, python_version):
         python_binary = self._python_binary(python_version)
@@ -82,10 +78,8 @@ class PythonBuilder(object):
 
 
 class PythonRuntime(object):
-    def __init__(self, console, temp_dir, project_dir, virtualenv_dir):
-        self._console = console
+    def __init__(self, temp_dir, virtualenv_dir):
         self._temp_dir = temp_dir
-        self._project_dir = project_dir
         self._virtualenv_dir = virtualenv_dir
     
     def __enter__(self):
