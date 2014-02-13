@@ -1,5 +1,7 @@
 import os
 
+import spur
+
 from ..temp import create_temp_dir
 
 
@@ -45,9 +47,16 @@ class PythonBuilder(object):
         
     def _python_binary(self, python_version):
         if python_version == "pypy":
-            return "pypy"
+            binary_name = "pypy"
         else:
-            return "python{0}".format(python_version)
+            binary_name = "python{0}".format(python_version)
+        
+        return self._which(binary_name)
+    
+    def _which(self, binary_name):
+        shell = spur.LocalShell()
+        path = shell.run(["bash", "-lc", "echo $PATH"]).output.strip()
+        return shell.run(["which", binary_name], update_env={"PATH": path}).output.strip()
 
 
 class PythonRuntime(object):
