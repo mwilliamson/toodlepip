@@ -25,7 +25,5 @@ def return_code_is_same_as_return_code_of_failed_command():
 
 
 def _build_empty(travis_yml):
-    with tempman.create_temp_dir() as temp_dir:
-        with open(os.path.join(temp_dir.path, ".travis.yml"), "w") as travis_yml_file:
-            yaml.dump(travis_yml, travis_yml_file)
-        return local.run(["toodlepip", "build", temp_dir.path], allow_error=True)
+    with testing.create_project(travis_yml) as project:
+        return local.run(["toodlepip", "build", project.path], allow_error=True)
