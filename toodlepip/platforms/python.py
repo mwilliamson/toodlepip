@@ -3,6 +3,7 @@ import os
 import spur
 
 from ..temp import create_temp_dir
+from ..consoles import Command
 
 
 class PythonBuilder(object):
@@ -29,10 +30,10 @@ class PythonBuilder(object):
         
         def _pip_upgrade(package_name):
             pip = os.path.join(path, "bin", "pip")
-            return [pip, "install", "--upgrade", package_name]
+            return Command.raw([pip, "install", "--upgrade", package_name])
         
         commands = [
-            ["virtualenv", path, "--python={0}".format(python_binary)],
+            Command.raw(["virtualenv", path, "--python={0}".format(python_binary)]),
             _pip_upgrade("pip"),
             _pip_upgrade("setuptools"),
             _pip_upgrade("virtualenv"),

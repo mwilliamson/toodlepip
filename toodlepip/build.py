@@ -1,5 +1,5 @@
 from . import config, files
-from .consoles import Console
+from .consoles import Console, Command
 from .platforms import builders
 from .temp import create_temp_dir
 
@@ -86,8 +86,11 @@ class CommandsRunner(object):
             )
         
         def _runtime_command(command):
-            before_command = self._runtime.before_step(step) or "true"
-            return "{0}; {1}".format(before_command, command)
+            before_command = self._runtime.before_step(step)
+            if before_command:
+                return Command.hidden_prefix(command, prefix=before_command)
+            else:
+                return Command.shell(command)
         
         return _runtime_run_all("Running {0} commands".format(step.name), step.commands)
         

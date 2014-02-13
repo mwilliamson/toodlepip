@@ -12,15 +12,12 @@ class Console(object):
     def run_all(self, description, commands, quiet=False, cwd=None, allow_error=True):
         self._write_description(description)
         for command in commands:
-            if isinstance(command, list):
-                command = _join_shell_args(command)
-            
             if not quiet:
                 self._write_command(command)
             
             process_stdout = None if quiet else self._stdout
             result = self._shell.run(
-                ["sh", "-c", command],
+                ["sh", "-c", command.actual],
                 stdout=process_stdout,
                 stderr=process_stdout,
                 cwd=cwd,
@@ -43,8 +40,28 @@ class Console(object):
     
     def _write_command(self, command):
         self._stdout.write(b"$ ")
-        self._stdout.write(command.encode("utf8"))
+        self._stdout.write(command.display.encode("utf8"))
         self._stdout.write(b"\n")
+
+
+class Command(object):
+    @staticmethod
+    def raw(command):
+        command = _join_shell_args(command)
+        return Command(command, command)
+    
+    @staticmethod
+    def shell(command):
+        return Command(command, command)
+        
+    @staticmethod
+    def hidden_prefix(command, prefix):
+        actual_command = "{0}; {1}".format(prefix, command)
+        return Command(display=command, actual=actual_command)
+    
+    def __init__(self, display, actual):
+        self.display = display
+        self.actual = actual
 
 
 class Result(object):
