@@ -28,7 +28,7 @@ setup(
     author='Michael Williamson',
     author_email='mike@zwobble.org',
     url='https://github.com/mwilliamson/toodlepip',
-    packages=['toodlepip'],
+    packages=['toodlepip', 'toodlepip.platforms'],
     scripts=['scripts/toodlepip'],
     install_requires=_install_requires,
     keywords="build test continuous integration travis",
