@@ -39,9 +39,9 @@ class Console(object):
             self._stdout.flush()
     
     def _write_command(self, command):
-        self._stdout.write("$ ")
-        self._stdout.write(command)
-        self._stdout.write("\n")
+        self._stdout.write(b"$ ")
+        self._stdout.write(command.encode("utf8"))
+        self._stdout.write(b"\n")
 
 
 class Result(object):
