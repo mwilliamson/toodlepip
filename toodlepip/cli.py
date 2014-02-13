@@ -9,7 +9,7 @@ from .build import create_builder
 
 def run(argv):
     args = _parse_args(argv)
-    exit(args.func(args))
+    exit(args.func(args).return_code)
 
 
 def _parse_args(argv):

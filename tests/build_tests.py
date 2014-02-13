@@ -3,10 +3,42 @@ import io
 import spur
 from nose.tools import istest, assert_equal
 
-from toodlepip.build import create_builder, StepRunner
+from toodlepip.build import create_builder, Builder, StepRunner
 from toodlepip.config import TravisConfig
+from toodlepip.consoles import Console
 from toodlepip import consoles
+from toodlepip.platforms import DefaultBuilder
 from . import testing
+
+
+@istest
+class BuilderTests(object):
+    def __init__(self):
+        self._stdout = io.BytesIO()
+        shell = spur.LocalShell()
+        console = Console(shell, self._stdout)
+        self._builder = Builder({None: DefaultBuilder}, console)
+    
+    @property
+    def _output(self):
+        return self._stdout.getvalue()
+    
+    @istest
+    def output_and_return_code_are_captured_by_build(self):
+        result = self._build_empty(travis_yml={"script": "echo 'Hello, world!'"})
+        assert b"Hello, world!" in self._output, "Output was: {0}".format(self._output)
+        assert_equal(0, result.return_code)
+
+
+    @istest
+    def return_code_is_same_as_return_code_of_failed_command(self):
+        result = self._build_empty(travis_yml={"script": "exit 1"})
+        assert_equal(1, result.return_code)
+
+
+    def _build_empty(self, travis_yml):
+        with testing.create_project(travis_yml) as project:
+            return self._builder.build(project.path)
 
 
 @istest

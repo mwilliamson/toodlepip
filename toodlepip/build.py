@@ -30,9 +30,9 @@ class Builder(object):
             for entry in language_builder.matrix(project_config):
                 result = self._build_entry(language_builder, project_dir, project_config, entry)
                 if result.return_code != 0:
-                    return result.return_code
+                    return BuildResult(result.return_code)
             
-            return 0
+            return BuildResult(0)
             
     def _build_entry(self, language_builder, project_dir, project_config, entry):
         with language_builder.create_runtime(project_dir, entry) as runtime:
@@ -100,3 +100,8 @@ class Step(object):
     def __init__(self, name, commands):
         self.name = name
         self.commands = commands
+
+
+class BuildResult(object):
+    def __init__(self, return_code):
+        self.return_code = return_code
