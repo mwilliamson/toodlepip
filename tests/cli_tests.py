@@ -1,9 +1,5 @@
-import os
-
 from nose.tools import istest, assert_equal
 import spur
-import tempman
-import yaml
 
 from . import testing
 
