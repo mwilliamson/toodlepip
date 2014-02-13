@@ -10,21 +10,21 @@ from toodlepip.consoles import Console
 def console_writes_stdout_output_to_console():
     console, output = _create_local_console()
     console.run(None, "echo Go go go!")
-    assert_equal("Go go go!\n", output.getvalue())
+    assert_equal("$ echo Go go go!\nGo go go!\n", output.getvalue())
 
 
 @istest
 def console_writes_stderr_output_to_console():
     console, output = _create_local_console()
     console.run(None, "echo 'Go go go!' 1>&2")
-    assert_equal("Go go go!\n", output.getvalue())
+    assert_equal("$ echo 'Go go go!' 1>&2\nGo go go!\n", output.getvalue())
 
 
 @istest
 def console_writes_description_before_command_output():
     console, output = _create_local_console()
-    console.run("Action", "echo Go go go!")
-    assert_equal("\x1b[1mAction\n\x1b[0mGo go go!\n", output.getvalue())
+    console.run("Action", "true")
+    assert_equal("\x1b[1mAction\n\x1b[0m$ true\n", output.getvalue())
 
 
 @istest

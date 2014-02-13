@@ -17,10 +17,12 @@ class Console(object):
             self._stdout.flush()
         for command in commands:
             if isinstance(command, list):
-                # TODO: escape command properly
-                command = ' '.join(command)
+                command = _join_shell_args(command)
             
-            # TODO: print command
+            self._stdout.write("$ ")
+            self._stdout.write(command)
+            self._stdout.write("\n")
+            
             result = self._shell.run(
                 ["sh", "-c", command],
                 stdout=stdout,
@@ -33,7 +35,13 @@ class Console(object):
             
             
         return Result(0)
-        
+
+
 class Result(object):
     def __init__(self, return_code):
         self.return_code = return_code
+
+
+def _join_shell_args(args):
+    # TODO: escape args properly
+    return " ".join(["'{0}'".format(arg) for arg in args])
