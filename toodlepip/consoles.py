@@ -1,3 +1,6 @@
+import pipes
+
+
 class Console(object):
     def __init__(self, shell, stdout):
         self._shell = shell
@@ -50,5 +53,4 @@ class Result(object):
 
 
 def _join_shell_args(args):
-    # TODO: escape args properly
-    return " ".join(["'{0}'".format(arg) for arg in args])
+    return " ".join([pipes.quote(arg) for arg in args])
