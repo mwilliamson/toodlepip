@@ -42,6 +42,7 @@ class PythonBuilder(object):
             "Creating virtualenv for {0}".format(python_version),
             commands,
             quiet=True,
+            allow_error=False,
         )
         
         
@@ -56,7 +57,7 @@ class PythonBuilder(object):
     def _which(self, binary_name):
         shell = spur.LocalShell()
         path = shell.run(["bash", "-lc", "echo $PATH"]).output.strip()
-        return shell.run(["which", binary_name], update_env={"PATH": path}).output.strip()
+        return shell.run(["which", binary_name], update_env={"PATH": path}).output.decode("utf8").strip()
 
 
 class PythonRuntime(object):

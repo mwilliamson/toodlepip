@@ -6,7 +6,7 @@ class Console(object):
     def run(self, description, command, **kwargs):
         return self.run_all(description, [command], **kwargs)
         
-    def run_all(self, description, commands, quiet=False, cwd=None):
+    def run_all(self, description, commands, quiet=False, cwd=None, allow_error=True):
         self._write_description(description)
         for command in commands:
             if isinstance(command, list):
@@ -21,7 +21,7 @@ class Console(object):
                 stdout=process_stdout,
                 stderr=process_stdout,
                 cwd=cwd,
-                allow_error=True
+                allow_error=allow_error,
             )
             if result.return_code != 0:
                 return Result(result.return_code)
