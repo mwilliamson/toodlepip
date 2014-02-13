@@ -62,5 +62,6 @@ class PythonRuntime(object):
         self._temp_dir.close()
 
     def before_step(self, step):
+        # TODO: set PIP_DOWNLOAD_CACHE
         virtualenv_activate = os.path.join(self._virtualenv_dir, "bin/activate")
         return ". {0}".format(virtualenv_activate)
