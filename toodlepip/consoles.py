@@ -7,21 +7,13 @@ class Console(object):
         return self.run_all(description, [command], **kwargs)
         
     def run_all(self, description, commands, quiet=False, cwd=None):
-        # TODO: detect terminal
-        if description:
-            self._stdout.write(b'\033[1m')
-            self._stdout.write(description.encode("utf8"))
-            self._stdout.write(b"\n")
-            self._stdout.write(b'\033[0m')
-            self._stdout.flush()
+        self._write_description(description)
         for command in commands:
             if isinstance(command, list):
                 command = _join_shell_args(command)
             
             if not quiet:
-                self._stdout.write("$ ")
-                self._stdout.write(command)
-                self._stdout.write("\n")
+                self._write_command(command)
             
             process_stdout = None if quiet else self._stdout
             result = self._shell.run(
@@ -36,6 +28,20 @@ class Console(object):
             
             
         return Result(0)
+    
+    def _write_description(self, description):
+        if description:
+            # TODO: detect terminal
+            self._stdout.write(b'\033[1m')
+            self._stdout.write(description.encode("utf8"))
+            self._stdout.write(b"\n")
+            self._stdout.write(b'\033[0m')
+            self._stdout.flush()
+    
+    def _write_command(self, command):
+        self._stdout.write("$ ")
+        self._stdout.write(command)
+        self._stdout.write("\n")
 
 
 class Result(object):
