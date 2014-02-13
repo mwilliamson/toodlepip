@@ -86,19 +86,19 @@ class StepRunnerTests(object):
         assert_equal(0, result.return_code)
         
     def _run_steps(self, project_config):
-        runner = StepRunner()
-        self._runtime = FakeRuntime()
-        return runner.run_steps(self._runtime, project_config)
+        self._commands_runner = FakeCommandsRunner()
+        runner = StepRunner(self._commands_runner)
+        return runner.run_steps(project_config)
         
     def _executed_steps(self):
-        return [step.name for step in self._runtime.steps]
+        return [step.name for step in self._commands_runner.steps]
 
 
-class FakeRuntime(object):
+class FakeCommandsRunner(object):
     def __init__(self):
         self.steps = []
     
-    def run_step(self, step):
+    def run_commands(self, step):
         self.steps.append(step)
         if len(step.commands) > 0:
             return_code = step.commands[0].split(" ")[1]

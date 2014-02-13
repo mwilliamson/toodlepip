@@ -14,7 +14,7 @@ local = spur.LocalShell()
 @istest
 def build_command_builds_project_locally():
     result = _build_empty(travis_yml={"script": "echo 'Hello, world!'"})
-    assert b"Hello, world!" in result.output, "Output was: {0}".format(result.output)
+    assert b"Hello, world!" in result.output, "Output was: {0}".format(result.output + result.stderr_output)
     assert_equal(0, result.return_code)
 
 
