@@ -7,7 +7,6 @@ class Console(object):
         return self.run_all(description, [command], **kwargs)
         
     def run_all(self, description, commands, quiet=False, cwd=None):
-        stdout = None if quiet else self._stdout
         # TODO: detect terminal
         if description:
             self._stdout.write(b'\033[1m')
@@ -19,14 +18,16 @@ class Console(object):
             if isinstance(command, list):
                 command = _join_shell_args(command)
             
-            self._stdout.write("$ ")
-            self._stdout.write(command)
-            self._stdout.write("\n")
+            if not quiet:
+                self._stdout.write("$ ")
+                self._stdout.write(command)
+                self._stdout.write("\n")
             
+            process_stdout = None if quiet else self._stdout
             result = self._shell.run(
                 ["sh", "-c", command],
-                stdout=stdout,
-                stderr=stdout,
+                stdout=process_stdout,
+                stderr=process_stdout,
                 cwd=cwd,
                 allow_error=True
             )

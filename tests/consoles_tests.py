@@ -41,6 +41,12 @@ def return_code_is_first_non_zero_return_code_of_commands():
     assert_equal(2, result.return_code)
 
 
+@istest
+def no_output_except_description_if_quiet_arg_is_set():
+    console, output = _create_local_console()
+    console.run("Action", "echo Go go go!", quiet=True)
+    assert_equal("\x1b[1mAction\n\x1b[0m", output.getvalue())
+
 def _create_local_console():
     output = io.BytesIO()
     shell = spur.LocalShell()
