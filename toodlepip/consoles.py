@@ -10,11 +10,12 @@ class Console(object):
         stdout = None if quiet else self._stdout
         # TODO: Test printing description
         # TODO: detect terminal
-        self._stdout.write(b'\033[1m')
-        self._stdout.write(description.encode("utf8"))
-        self._stdout.write(b"\n")
-        self._stdout.write(b'\033[0m')
-        self._stdout.flush()
+        if description:
+            self._stdout.write(b'\033[1m')
+            self._stdout.write(description.encode("utf8"))
+            self._stdout.write(b"\n")
+            self._stdout.write(b'\033[0m')
+            self._stdout.flush()
         for command in commands:
             # TODO: print command
             result = self._shell.run(
